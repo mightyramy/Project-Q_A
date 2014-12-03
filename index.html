@@ -1,0 +1,212 @@
+﻿
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1" />
+        <meta charset="utf-8" /> 
+		<title>Calcul Capitalisation/Actualisation</title>	
+        <link href="css/bootstrap/css/bootstrap.css" rel="stylesheet">
+        <script type="text/javascript" src="js/jquery.js"></script>
+        
+		
+
+	</head>
+	<body>
+		
+			<div class="navbar navbar-inverse navbar-fixed-top" id="header">
+                <div class="navbar-header">
+                    <div class="container-fluid">
+						<a class="navbar-brand">Calcul Capitalisation/Actualisation</a>						
+						<a class="navbar-brand navbar-right">Préparé par: Ramy Herrira FIA2-GL 01</a>					
+                    </div>
+				</div>
+			</div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span10">
+                    <div id="container">
+
+                        <canvas id="canvas1" height="600" width="700" style=" margin: 55px; margin-top: 80px; margin-bottom:20px;">
+
+                                You cannot view this HTML5 element !
+
+                        </canvas>                
+                    </div>
+                </div>
+                
+                <div class="span2">
+                    <div class="jumbotron">            
+                        <form class="form-singin" role="form" name="form" method="get">
+                            <h2 class="form-signin-heading">Valeurs:</h2>              
+                              <form class="form" id="myform">
+                                    <div style="display:inline;">
+                                        <label class="control-label" >
+                                            Capitalisation
+                                            <input class="form-control" type="radio" id="capt" name="type" value="capt" checked/>
+                                        </label>
+                                        <label class="control-label">
+                                            Actualisation
+                                            <input class="form-control" type="radio" id="act" name="type" value="act"/>
+                                        </label>
+                                    </div>
+                                    <input class="form-control" type="text" id="CInitial" placeholder="P" value="1000">                
+                                    <input class="form-control" type="text" id="VFutur" placeholder="F/A"/>                
+                                    <input class="form-control" type="text" id="Interet" placeholder="Taux d'interêt %" value="8"/>                
+                                    <input class="form-control" type="number" id="Duree" placeholder="Duree d'analyse" value="5"/>
+                                    <label class="control-label" style="display: inline;">
+                                    Annuité
+                                    <input class="form-control" type="checkbox" id="annuite"/> 
+                                    </label>
+
+                                    <button class="btn btn-lg btn-primary btn-block" id="bouton" type="submit"  >
+                                    Calcul
+                                    </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+		        
+        <script type="application/javascript" src="js/awesomechart.js"></script>                        
+        <script type="application/javascript">
+          var P = 0.0;
+          var i = 0.0;
+          var N = 0;
+          var F = 0.0;
+          var A = [];
+          var B = false;
+          var type; 
+ 
+            
+            $(document).ready(function()
+            {     
+                if ($('#capt').is(':checked'))
+                {
+                    $("#CInitial").removeAttr("disabled");
+                    $("#VFutur").attr("disabled", "disabled");
+                }else{                    
+                    $("#VFutur").removeAttr("disabled");
+                    $("#CInitial").attr("disabled", "disabled");
+                }
+                $('input[name=type]').click(function()
+                    {
+                        if ($('#capt').is(':checked'))
+                        {
+                            $("#CInitial").removeAttr("disabled");
+                            $("#VFutur").attr("disabled", "disabled");
+                        }else{                    
+                            $("#VFutur").removeAttr("disabled");
+                            $("#CInitial").attr("disabled", "disabled");
+                        }
+                    });
+                
+                $("#bouton").click(function() 
+                {
+                    var A =  getForm();    
+                    
+                });
+            });
+
+
+            function getForm()
+            {                
+                P = parseFloat( $("#CInitial").val() ); 
+                i = parseFloat( $("#Interet").val() )/100;
+                N = parseInt( $("#Duree").val() );
+                F = parseFloat( $("#VFutur").val() );     
+                B = $("#annuite").is(':checked');
+                type = $('input[name=type]:checked').val();
+                console.log("FORM:"+P +" "+ i +" "+N+" "+F+" "+B);
+              if (type=="capt")
+              {
+                  if(B == false)
+                  {
+                    captUnique(P,F,N,i); 
+                    console.log("Capitalisation Prix Unique");  
+                  }else{
+                    captAnnuite(P,F,N,i); 
+                    console.log("Capitalisation Annuité"); 
+                  }
+              }else{
+                  if( B== false)
+                  {
+                    actUnique(P,F,N,i); 
+                    console.log("Actulisation Unique"); 
+                  }else{
+                        captAnnuite(P,F,N,i); 
+                        console.log("Capitalisation Annuité");  
+                  }
+              }   
+            }
+
+            function captUnique(P, F, N, i)
+            {
+                var A =[];
+                for(var n=1; n<=N; n++)
+                {   
+                     A.push ( (F = Math.pow(1+i, n) * P).toFixed(2) );                    
+                }                        
+                console.log(""+A);                                    
+                localStorage.setItem("array", A);
+                
+                
+            }
+                                  
+            function captAnnuite(P, F, N, i)
+            {
+                for(var n=1; n<=N; n++)
+                {
+                    A.push( (F = P * ( Math.pow( (1+i), n ) -1 ) / i).toFixed(2) ) ;
+                }
+                console.log(""+A);      
+                localStorage.setItem("array", A);
+            }
+
+            function actUnique(P, F, N, i)
+            {
+                for(var n=1; n<=N; n++)
+                {
+                    A.push( (P = F * Math.pow( (1 + i), -n)).toFixed(2) ) ;
+                }
+                console.log(""+A);
+                localStorage.setItem("array", A);
+            }
+
+            function actAnnuite(P, F, N, i)
+            {
+                for(var n=1; n<=N; n++)
+                {
+                    A.push( (P = F * ( 1 - Math.pow( (1 + i), -n) ) / i).toFixed(2) );
+                }
+                console.log(""+A);    
+                localStorage.setItem("array", A);
+            }
+            
+            
+            
+            function drawMyChart(){              
+                
+                    var mychart = new AwesomeChart('canvas1');
+                    mychart.title = "Schéma";
+                    var tableau = localStorage.getItem("array").split(",");
+                    mychart.data = tableau;
+                    var label = [];
+                    for(var k=1; k<= tableau.length+1;k++)
+                    {  label.push("Période "+k);    }
+                    mychart.labels = label;
+                    mychart.animate = true;
+                    mychart.animationFrames = 30;
+                    mychart.draw();
+                
+          }
+            
+            window.onload = drawMyChart;      
+    
+       
+            
+            
+
+        </script>
+        
+	</body>
+</html>
